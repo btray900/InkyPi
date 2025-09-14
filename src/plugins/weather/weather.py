@@ -14,11 +14,11 @@ UNITS = {
 }
 
 # WEATHER_URL = "https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={long}&units={units}&exclude=minutely&appid={api_key}"
-WEATHER_URL = "http://localhost:4444/weather?api_key={api_key}"
+WEATHER_URL = "http://172.16.90.252:4444/weather?api_key={api_key}"
 # AIR_QUALITY_URL = "http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={long}&appid={api_key}"
-AIR_QUALITY_URL = "http://localhost:4444/air-quality?api_key={api_key}"
+AIR_QUALITY_URL = "http://172.16.90.252:4444/air-quality?api_key={api_key}"
 # GEOCODING_URL = "http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={long}&limit=1&appid={api_key}"
-GEOCODING_URL = "http://localhost:4444/geocoding?api_key={api_key}"
+GEOCODING_URL = "http://172.16.90.252:4444/geocoding?api_key={api_key}"
 
 OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={long}&hourly=temperature_2m,precipitation,precipitation_probability,relative_humidity_2m,surface_pressure,visibility&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&current_weather=true&timezone=auto&models=best_match&forecast_days={forecast_days}"
 OPEN_METEO_AIR_QUALITY_URL = "https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={long}&hourly=european_aqi,uv_index,uv_index_clear_sky&timezone=auto"
@@ -60,6 +60,7 @@ class Weather(BasePlugin):
         try:
             if weather_provider == "OpenWeatherMap":
                 api_key = device_config.load_env_key("OPEN_WEATHER_MAP_SECRET")
+                logger.info(f"Using OpenWeatherMap API Key: {api_key is not None}")
                 if not api_key:
                     raise RuntimeError("Open Weather Map API Key not configured.")
                 weather_data = self.get_weather_data(api_key, units, lat, long)
@@ -709,6 +710,7 @@ class Weather(BasePlugin):
 
     def get_weather_data(self, api_key, units, lat, long):
         url = WEATHER_URL.format(lat=lat, long=long, units=units, api_key=api_key)
+        logging.info(f"Requesting weather data from URL: {url}")
         response = requests.get(url)
         if not 200 <= response.status_code < 300:
             logging.error(f"Failed to retrieve weather data: {response.content}")
