@@ -58,9 +58,6 @@ class BasePlugin:
         return template_params
 
     def render_image(self, dimensions, html_file, css_file=None, template_params={}):
-        logger.info(
-            f"BT106C Rendering image with dimensions: {dimensions}, html_file: {html_file}, css_file: {css_file}, template_params: {template_params}"
-        )
         # load the base plugin and current plugin css files
         css_files = [os.path.join(BASE_PLUGIN_RENDER_DIR, "plugin.css")]
         if css_file:

@@ -93,7 +93,6 @@ def compute_image_hash(image):
 
 
 def take_screenshot_html(html_str, dimensions, timeout_ms=None):
-    logger.info("BT106C Taking screenshot from HTML")
     image = None
     try:
         # Create a temporary HTML file
@@ -131,18 +130,9 @@ def take_screenshot(target, dimensions, timeout_ms=None):
             "--disable-plugins",
             "--mute-audio",
         ]
-        logger.info(f"BT106C Running command: {' '.join(command)}")
         if timeout_ms:
             command.append(f"--timeout={timeout_ms}")
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        logger.info(
-            f"BT106C Screenshot command executed err: {result.stderr.decode('utf-8')}"
-        )
-        logger.info(
-            f"BT106C Screenshot command executed out: {result.stdout.decode('utf-8')}"
-        )
-        logger.info(f"BT106C Command finished with return code: {result.returncode}")
-
         # Check if the process failed or the output file is missing
         if result.returncode != 0 or not os.path.exists(img_file_path):
             logger.error("Failed to take screenshot:")
