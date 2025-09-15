@@ -9,25 +9,30 @@ import subprocess
 
 logger = logging.getLogger(__name__)
 
+
 def get_image(image_url):
     response = requests.get(image_url)
     img = None
     if 200 <= response.status_code < 300 or response.status_code == 304:
         img = Image.open(BytesIO(response.content))
     else:
-        logger.error(f"Received non-200 response from {image_url}: status_code: {response.status_code}")
+        logger.error(
+            f"Received non-200 response from {image_url}: status_code: {response.status_code}"
+        )
     return img
 
+
 def change_orientation(image, orientation, inverted=False):
-    if orientation == 'horizontal':
+    if orientation == "horizontal":
         angle = 0
-    elif orientation == 'vertical':
+    elif orientation == "vertical":
         angle = 90
 
     if inverted:
         angle = (angle + 180) % 360
 
     return image.rotate(angle, expand=1)
+
 
 def resize_image(image, desired_size, image_settings=[]):
     img_width, img_height = image.size
@@ -39,8 +44,8 @@ def resize_image(image, desired_size, image_settings=[]):
 
     keep_width = "keep-width" in image_settings
 
-    x_offset, y_offset = 0,0
-    new_width, new_height = img_width,img_height
+    x_offset, y_offset = 0, 0
+    new_width, new_height = img_width, img_height
     # Step 1: Determine crop dimensions
     desired_ratio = desired_width / desired_height
     if img_ratio > desired_ratio:
@@ -55,10 +60,13 @@ def resize_image(image, desired_size, image_settings=[]):
             y_offset = (img_height - new_height) // 2
 
     # Step 2: Crop the image
-    image = image.crop((x_offset, y_offset, x_offset + new_width, y_offset + new_height))
+    image = image.crop(
+        (x_offset, y_offset, x_offset + new_width, y_offset + new_height)
+    )
 
     # Step 3: Resize to the exact desired dimensions (if necessary)
     return image.resize((desired_width, desired_height), Image.LANCZOS)
+
 
 def apply_image_enhancement(img, image_settings={}):
 
@@ -76,13 +84,16 @@ def apply_image_enhancement(img, image_settings={}):
 
     return img
 
+
 def compute_image_hash(image):
     """Compute SHA-256 hash of an image."""
     image = image.convert("RGB")
     img_bytes = image.tobytes()
     return hashlib.sha256(img_bytes).hexdigest()
 
+
 def take_screenshot_html(html_str, dimensions, timeout_ms=None):
+    logger.info("BT106C Taking screenshot from HTML")
     image = None
     try:
         # Create a temporary HTML file
@@ -99,6 +110,7 @@ def take_screenshot_html(html_str, dimensions, timeout_ms=None):
         logger.error(f"Failed to take screenshot: {str(e)}")
 
     return image
+
 
 def take_screenshot(target, dimensions, timeout_ms=None):
     image = None
@@ -124,7 +136,7 @@ def take_screenshot(target, dimensions, timeout_ms=None):
             "--disable-extensions",
             "--disable-plugins",
             "--mute-audio",
-            "--no-sandbox"
+            "--no-sandbox",
         ]
         if timeout_ms:
             command.append(f"--timeout={timeout_ms}")
@@ -133,7 +145,7 @@ def take_screenshot(target, dimensions, timeout_ms=None):
         # Check if the process failed or the output file is missing
         if result.returncode != 0 or not os.path.exists(img_file_path):
             logger.error("Failed to take screenshot:")
-            logger.error(result.stderr.decode('utf-8'))
+            logger.error(result.stderr.decode("utf-8"))
             return None
 
         # Load the image using PIL
