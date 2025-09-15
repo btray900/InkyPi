@@ -126,21 +126,22 @@ def take_screenshot(target, dimensions, timeout_ms=None):
             f"--screenshot={img_file_path}",
             f"--window-size={dimensions[0]},{dimensions[1]}",
             "--disable-dev-shm-usage",
-            "--disable-gpu",
-            "--use-gl=swiftshader",
             "--hide-scrollbars",
-            "--in-process-gpu",
-            "--js-flags=--jitless",
-            "--disable-zero-copy",
-            "--disable-gpu-memory-buffer-compositor-resources",
             "--disable-extensions",
             "--disable-plugins",
             "--mute-audio",
-            "--no-sandbox",
         ]
+        logger.info(f"BT106C Running command: {' '.join(command)}")
         if timeout_ms:
             command.append(f"--timeout={timeout_ms}")
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        logger.info(
+            f"BT106C Screenshot command executed err: {result.stderr.decode('utf-8')}"
+        )
+        logger.info(
+            f"BT106C Screenshot command executed out: {result.stdout.decode('utf-8')}"
+        )
+        logger.info(f"BT106C Command finished with return code: {result.returncode}")
 
         # Check if the process failed or the output file is missing
         if result.returncode != 0 or not os.path.exists(img_file_path):
